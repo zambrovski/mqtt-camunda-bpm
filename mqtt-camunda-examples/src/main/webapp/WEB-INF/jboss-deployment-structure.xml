@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+  <deployment>
+  <!-- 
+    <module-alias name="mqtt-camunda-examples"/>
+   -->
+    <dependencies>
+      <module name="com.google.guava" export="true"/>
+      <module name="org.camunda.bpm.camunda-engine" export="true"/>
+      <module name="org.codehaus.groovy.groovy-all" export="true"/>
+    </dependencies>
+  </deployment>
+</jboss-deployment-structure>

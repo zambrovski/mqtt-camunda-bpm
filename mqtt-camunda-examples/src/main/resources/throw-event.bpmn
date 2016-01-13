@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="throw_event" isExecutable="true">
+    <bpmn:startEvent id="start">
+      <bpmn:outgoing>seq_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="end">
+      <bpmn:incoming>seq_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="seq_1" sourceRef="start" targetRef="mqtt_throw" />
+    <bpmn:sequenceFlow id="seq_2" sourceRef="mqtt_throw" targetRef="end" />
+    <bpmn:intermediateThrowEvent id="mqtt_throw" name="MQTT event occured">
+      <bpmn:incoming>seq_1</bpmn:incoming>
+      <bpmn:outgoing>seq_2</bpmn:outgoing>
+      <bpmn:messageEventDefinition camunda:delegateExpression="${mqttThrowingEvent}">
+        <bpmn:extensionElements>
+          <camunda:field name="topic" stringValue="foo" />
+          <camunda:field name="message">
+            <camunda:expression>${barValue}</camunda:expression>
+          </camunda:field>
+        </bpmn:extensionElements>        
+      </bpmn:messageEventDefinition>
+    </bpmn:intermediateThrowEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="throw_event">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="start">
+        <dc:Bounds x="270" y="167" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="243" y="203" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_08gia7d_di" bpmnElement="end">
+        <dc:Bounds x="578" y="167" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="551" y="203" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_15kx2si_di" bpmnElement="seq_1">
+        <di:waypoint xsi:type="dc:Point" x="306" y="185" />
+        <di:waypoint xsi:type="dc:Point" x="431" y="185" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="323.5" y="175" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_06lxomn_di" bpmnElement="seq_2">
+        <di:waypoint xsi:type="dc:Point" x="467" y="185" />
+        <di:waypoint xsi:type="dc:Point" x="578" y="185" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="477.5" y="175" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateThrowEvent_1yv7wfl_di" bpmnElement="mqtt_throw">
+        <dc:Bounds x="431" y="167" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="404" y="203" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
