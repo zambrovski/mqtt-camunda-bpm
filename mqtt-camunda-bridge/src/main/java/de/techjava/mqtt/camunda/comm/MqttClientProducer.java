@@ -31,6 +31,10 @@ public class MqttClientProducer {
     @Inject
     @Property("mqtt.client.id")
     private String clientId;
+    
+    @Inject
+    @Property("mqtt.disabled")
+    private Boolean disabled;
 
     /**
      * Produces a MQTT client.
@@ -44,12 +48,20 @@ public class MqttClientProducer {
             if (clientId == null) {
                 clientId = UUID.randomUUID().toString();
             }
+            
+            if (disabled == null) {
+                disabled = Boolean.FALSE;
+            }
             client = new MqttClient(broker, clientId, new MemoryPersistence());
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            logger.info("Connecting to broker: {}...", broker);
-            client.connect(connOpts);
-            logger.info("Connected.");
+            if (disabled) {
+                logger.warn("MQTT Client is disabled via property. Library is not operational.");
+            } else {
+                logger.info("Connecting to broker: {}...", broker);
+                client.connect(connOpts);
+                logger.info("Connected.");
+            }
         } catch (MqttException e) {
             logger.error("Error establishing MQTT connection", e);
         }

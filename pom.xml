@@ -5,7 +5,7 @@
 	<groupId>de.techjava</groupId>
 	<artifactId>mqtt-camunda-bridge-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>Camunda BPM MQTT Bridge Parent</name>
 	<description>Parent of the library providing MQTT to Camunda BPM bridge.</description>
 

@@ -47,7 +47,7 @@ public class MqttReceiver extends MqttCallbackAdapter {
     private Integer qos;
 
     @Inject
-    @Property("mqtt.deliversignals")
+    @Property("mqtt.signals.deliver")
     private Boolean deliverSignals;
 
     @Inject
@@ -56,20 +56,23 @@ public class MqttReceiver extends MqttCallbackAdapter {
 
     @PostConstruct
     public void init() {
-        if (deliverSignals == null) {
-            deliverSignals = Boolean.FALSE;
+        if (this.deliverSignals == null) {
+            this.deliverSignals = Boolean.FALSE;
+            logger.warn("MQTT BPMN signal delivery is deactivated. "
+                    + "Set mqtt.topic.prefix=true if you want to activate it or set it to false to avoid this message.");
         }
-
-        client.setCallback(this);
-        initializeSignalDelivery();
-        logger.info("MQTT receiver initialized.");
+        if (this.client.isConnected()) {
+            this.client.setCallback(this);
+            this.initializeSignalDelivery();
+            logger.info("MQTT receiver initialized.");
+        }
     }
 
     /**
      * Initializes signal delivery. Please set <code>mqtt.deliversignals</code> property to true, to activate it.
      */
     private void initializeSignalDelivery() {
-        if (deliverSignals) {
+        if (this.deliverSignals) {
             final String fullTopic = topicPrefix + "#";
             try {
                 this.client.subscribe(fullTopic);
@@ -92,7 +95,7 @@ public class MqttReceiver extends MqttCallbackAdapter {
      */
     public void addListener(final String topic, final MqttCallback callback) {
         logger.info("Adding listener {} to topic '{}'", callback.getClass().getSimpleName(), topic);
-        final String fullTopic = topicPrefix + topic;
+        final String fullTopic = this.topicPrefix + topic;
         Collection<MqttCallback> callbacksForTopic = this.listeners.get(fullTopic);
         if (callbacksForTopic == null) {
             callbacksForTopic = new ArrayList<MqttCallback>();

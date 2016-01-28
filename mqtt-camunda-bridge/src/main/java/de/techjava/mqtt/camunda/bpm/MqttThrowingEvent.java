@@ -16,16 +16,16 @@ import de.techjava.mqtt.camunda.comm.MqttSender;
 
 /**
  * Delegate for sending MQTT messages using Camunda fields <code>topic</code> and <code>message</code>.
- * 
  * @see https://docs.camunda.org/manual/7.4/user-guide/process-engine/delegation-code/#field-injection for details.
  * @author Simon Zambrovski
  * @author Thorsten Pohl
- *
  */
 @Named
 public class MqttThrowingEvent implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttThrowingEvent.class);
+
+    public static final String PAYLOAD_PATTERN = "%s.payload";
 
     @Inject
     private MqttSender sender;
@@ -35,30 +35,28 @@ public class MqttThrowingEvent implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        String topicValue = (String) topic.getValue(execution);
-        
-        if (topicValue==null){
+        String topicValue = (String)topic.getValue(execution);
+
+        if (topicValue == null) {
             // Try to get the topic from the message name including pattern replacement.
             String topicPattern = getMessageName(execution);
             topicValue = replaceVariables(execution, topicPattern);
         }
-        
-        if (topicValue == null) {
-            LOGGER.warn("Not throwing any event. Topic is not specified in {}", execution.getCurrentActivityName());
-        }
 
         Object messageValue = message.getValue(execution);
-        if (messageValue == null){
+        final String variableName = String.format(PAYLOAD_PATTERN, execution.getCurrentActivityId());
+        if (messageValue == null) {
             // Resolve the messageValue from process variable {event.id}.payload.
-            final String eventId = execution.getCurrentActivityId();
-            messageValue = String.valueOf(execution.getVariable(eventId + ".payload"));
+
+            messageValue = String.valueOf(execution.getVariable(variableName));
         }
-        
+
         if (messageValue != null) {
             sender.sendMessage(topicValue, messageValue.toString());
             LOGGER.info("Throwing event topic {} with value {}", topicValue, messageValue);
         } else {
-            LOGGER.warn("Not throwing any event. Designated value for topic {} was null on {}.", topicValue, execution.getCurrentActivityName());
+            LOGGER.error("Not throwing any event in {}. " + "Designated value for topic {} was not set neither per field nor in the process variable {}.",
+                    execution.getCurrentActivityName(), topicValue, variableName);
         }
     }
 
@@ -78,7 +76,6 @@ public class MqttThrowingEvent implements JavaDelegate {
         this.message = message;
     }
 
-    
     public static String replaceVariables(DelegateExecution execution, String topicPattern) {
 
         if (topicPattern.contains("${")) {
@@ -101,5 +98,5 @@ public class MqttThrowingEvent implements JavaDelegate {
             return null;
         }
     }
-    
+
 }
