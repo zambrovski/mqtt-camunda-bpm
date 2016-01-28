@@ -25,7 +25,7 @@ public class MqttThrowingEvent implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttThrowingEvent.class);
 
-    public static final String PAYLOAD_PATTERN = "%s.payload";
+    public static final String PAYLOAD_PATTERN = "%s_payload";
 
     @Inject
     private MqttSender sender;

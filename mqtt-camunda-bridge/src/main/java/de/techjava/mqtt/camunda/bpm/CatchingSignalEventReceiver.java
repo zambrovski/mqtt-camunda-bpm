@@ -33,11 +33,11 @@ public class CatchingSignalEventReceiver extends MqttCallbackAdapter {
     /**
      * Variable name suffix of the stored MQTT message payload.
      */
-    public static final String PAYLOAD_PATTERN = "%s.payload";
+    public static final String PAYLOAD_PATTERN = "%s_payload";
     /**
      * Variable name suffix of the stored MQTT message topic.
      */
-    public static final String TOPIC_PATTERN = "%s.topic";
+    public static final String TOPIC_PATTERN = "%s_topic";
     private static final Logger LOGGER = LoggerFactory.getLogger(CatchingSignalEventReceiver.class);
 
     @Inject
