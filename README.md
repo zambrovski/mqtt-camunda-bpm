@@ -25,13 +25,13 @@ In order to use the library, a configuration of MQTT protocol has to be supplied
 ### Sending Messages
 In order to send a MQTT message, please use a BPMN throwing message event and provide `${mqttThrowingEvent}` as delegateExpression property value. In addition, the MQTT client need the information about the target topic and the message payload. There are two ways to specify those:
 #### Using event name and process variable 
-You must name the BPMN throwing message event with the topic name (without prefix) and the process execution must contain a variable called `<topic name>.payload`. 
+You must name the BPMN throwing message-definiton event with the topic name (without prefix) and the process execution must contain a variable called `<event-id>.payload`. 
 
 E.g if the prefix is configured to be `camunda-bridge`
 
 
-	<bpmn:intermediateThrowEvent id="Message_0sdfsf" name="foo/bar/zoo" />
-will lead to a message deliver to the topic `camunda-bridge/foo/bar/zoo` with the value taken from the process variable `foo/bar/zoo.payload`.
+	<bpmn:intermediateThrowEvent id="messageEventBar" name="foo/bar/zoo" />
+will lead to a message deliver to the topic `camunda-bridge/foo/bar/zoo` with the value taken from the process variable `messageEventBar.payload`.
 
 #### Using Camunda Fields extension
 As an alternative you can use the Camunda Fields extensions (see below)
