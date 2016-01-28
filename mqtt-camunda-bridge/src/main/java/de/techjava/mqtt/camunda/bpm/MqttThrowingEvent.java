@@ -61,14 +61,17 @@ public class MqttThrowingEvent implements JavaDelegate {
      * @return the topic - if null, no message will be sent.
      */
     protected String getTopic(DelegateExecution execution) {
-        String topicValue = (String)topic.getValue(execution);
+        String topicValue = null;
+        if (topic != null) {
+            topicValue = (String)topic.getValue(execution);
+        }
 
         if (topicValue == null) {
             // Try to get the topic from the message name including pattern replacement.
             String topicPattern = getMessageName(execution);
             topicValue = replaceVariables(execution, topicPattern);
         }
-        
+
         return topicValue;
     }
 
@@ -78,14 +81,17 @@ public class MqttThrowingEvent implements JavaDelegate {
      * @return the payload - if null, no message will be sent.
      */
     protected Object getMessagePayload(DelegateExecution execution) {
-        Object messageValue = message.getValue(execution);
+        Object messageValue = null;
+        if (message != null) {
+            messageValue = message.getValue(execution);
+        }
 
         if (messageValue == null) {
             // Resolve the messageValue from process variable {event.id}.payload.
             final String variableName = String.format(PAYLOAD_PATTERN, execution.getCurrentActivityId());
             messageValue = String.valueOf(execution.getVariable(variableName));
         }
-        
+
         return messageValue;
     }
 
