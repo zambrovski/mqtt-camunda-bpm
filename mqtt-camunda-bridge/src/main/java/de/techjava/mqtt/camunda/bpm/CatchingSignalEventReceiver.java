@@ -1,8 +1,12 @@
 package de.techjava.mqtt.camunda.bpm;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -11,7 +15,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
 import de.techjava.mqtt.camunda.comm.MqttCallbackAdapter;
+import de.techjava.mqtt.camunda.config.Property;
 
 /**
  * Fires BPMN signals on receipt of MQTT messages.
@@ -24,21 +31,80 @@ import de.techjava.mqtt.camunda.comm.MqttCallbackAdapter;
  */
 @ApplicationScoped
 public class CatchingSignalEventReceiver extends MqttCallbackAdapter {
+    public static final String MQTT_SEPARATOR = "/";
     /**
-     * Variable name of the stored MQTT message payload.
+     * Variable name suffix of the stored MQTT message payload.
      */
-    public static final String PAYLOAD = "payload";
+    public static final String PAYLOAD_PATTERN = "%s.payload";
+    /**
+     * Variable name suffix of the stored MQTT message topic.
+     */
+    public static final String TOPIC_PATTERN = "%s.topic";
     private static final Logger LOGGER = LoggerFactory.getLogger(CatchingSignalEventReceiver.class);
 
     @Inject
     private RuntimeService runtime;
 
+    @Inject
+    @Property("mqtt.subsignals.supress")
+    private Boolean supressSubSignals;
+
+    @PostConstruct
+    public void init() {
+        if (supressSubSignals == null) {
+            supressSubSignals = Boolean.FALSE;
+        }
+    }
+
     @Override
     public void messageArrived(final String topic, final MqttMessage message) throws Exception {
-        LOGGER.info("Throwing a BPMN signal '{}'", topic);
         final String payload = new String(message.getPayload());
+        Set<String> signalTopics = getSignalTopics(topic);
+        for (String signalTopic : signalTopics) {
+            LOGGER.info("Throwing a BPMN signal '{}'", signalTopic);
+            Map<String, Object> values = createPayload(signalTopic, topic, payload);
+            runtime.signalEventReceived(signalTopic, values);
+        }
+    }
+
+    /**
+     * Create signal-specific payload and topic.
+     * 
+     * @param signalTopic
+     *            signal topic (delivered)
+     * @param topic
+     *            origin topic
+     * @param payload
+     *            payload
+     * @return map to be put into process payload.
+     */
+    public Map<String, Object> createPayload(final String signalTopic, final String topic, final String payload) {
         final Map<String, Object> values = new HashMap<String, Object>();
-        values.put(PAYLOAD, payload);
-        runtime.signalEventReceived(topic, values);
+        values.put(String.format(PAYLOAD_PATTERN, signalTopic), payload);
+        values.put(String.format(TOPIC_PATTERN, signalTopic), topic);
+        return values;
+    }
+
+    /**
+     * Determines the singular signal topics and their subtopics.
+     * 
+     * @param topic
+     *            origin topic.
+     * @return set of all subtopics.
+     */
+    public Set<String> getSignalTopics(final String topic) {
+        Objects.requireNonNull(topic, "Topic must not be null");
+        if (supressSubSignals) {
+            return Sets.newHashSet(topic);
+        }
+        final String[] topicSegments = topic.split(MQTT_SEPARATOR);
+        final Set<String> signalTopics = new HashSet<String>(topicSegments.length);
+        StringBuilder builder = new StringBuilder();
+        for (int i = topicSegments.length - 1; i >= 0; i--) {
+            builder.insert(0, topicSegments[i]);
+            signalTopics.add(builder.toString());
+            builder.insert(0, MQTT_SEPARATOR);
+        }
+        return signalTopics;
     }
 }
