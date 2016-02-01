@@ -12,6 +12,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.spin.plugin.variable.SpinValues;
+import org.camunda.spin.plugin.variable.value.JsonValue;
+import org.camunda.spin.plugin.variable.value.builder.JsonValueBuilder;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +80,21 @@ public class CatchingSignalEventReceiver extends MqttCallbackAdapter {
      */
     public Map<String, Object> createPayload(final String signalTopic, final String topic, final String payload) {
         final Map<String, Object> values = new HashMap<String, Object>();
-        values.put(String.format(PAYLOAD_PATTERN, signalTopic), payload);
+        values.put(String.format(PAYLOAD_PATTERN, signalTopic), convertPayload(payload));
         values.put(String.format(TOPIC_PATTERN, signalTopic), topic);
         return values;
+    }
+
+    /**
+     * Converts the payload to a Camunda JSON Object.
+     * @param payload the raw payload string.
+     * @return a Camunda JSON Object.
+     */
+    public Object convertPayload(final String payload) {
+        JsonValueBuilder b = SpinValues.jsonValue(payload);
+        ;
+        final JsonValue jsonValue = b.create();
+        return jsonValue;
     }
 
     /**
