@@ -59,7 +59,7 @@ public class MqttReceiver extends MqttCallbackAdapter {
         if (this.deliverSignals == null) {
             this.deliverSignals = Boolean.FALSE;
             logger.warn("MQTT BPMN signal delivery is deactivated. "
-                    + "Set mqtt.topic.prefix=true if you want to activate it or set it to false to avoid this message.");
+                    + "Set mqtt.signals.deliver=true if you want to activate it or set it to false to avoid this message.");
         }
         if (this.client.isConnected()) {
             this.client.setCallback(this);
