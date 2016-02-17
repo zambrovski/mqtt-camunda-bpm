@@ -15,8 +15,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
 import de.techjava.mqtt.camunda.comm.MqttCallbackAdapter;
 import de.techjava.mqtt.camunda.config.Property;
 
@@ -95,7 +93,9 @@ public class CatchingSignalEventReceiver extends MqttCallbackAdapter {
     public Set<String> getSignalTopics(final String topic) {
         Objects.requireNonNull(topic, "Topic must not be null");
         if (supressSubSignals) {
-            return Sets.newHashSet(topic);
+            final HashSet<String> result = new HashSet<String>();
+            result.add(topic);
+            return result;
         }
         final String[] topicSegments = topic.split(MQTT_SEPARATOR);
         final Set<String> signalTopics = new HashSet<String>(topicSegments.length);
