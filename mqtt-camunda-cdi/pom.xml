@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>jar</packaging>
+	<artifactId>mqtt-camunda-cdi</artifactId>
+	<name>Camunda BPM MQTT CDI</name>
+	<description>CDI Adapter for MQTT to Camunda BPM bridge.</description>
+
+	<parent>
+		<groupId>de.techjava</groupId>
+		<artifactId>mqtt-camunda-bridge-parent</artifactId>
+		<version>0.0.2-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.techjava</groupId>
+			<artifactId>mqtt-camunda-bridge</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.camunda.bpm</groupId>
+			<artifactId>camunda-engine</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>7.0</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+			<groupId>org.jglue.cdi-unit</groupId>
+			<artifactId>cdi-unit</artifactId>
+			<version>3.1.2</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

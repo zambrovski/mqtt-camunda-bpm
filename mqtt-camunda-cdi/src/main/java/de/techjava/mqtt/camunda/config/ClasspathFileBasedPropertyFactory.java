@@ -110,8 +110,14 @@ public class ClasspathFileBasedPropertyFactory {
         return null;
     }
 
-    private String getRawPropertyValue(InjectionPoint ip) {
-        final Property config = ip.getAnnotated().getAnnotation(Property.class);
+    /**
+     * Reads the configuration value from the injection point.
+     * 
+     * @param injectionPoint
+     * @return
+     */
+    private String getRawPropertyValue(final InjectionPoint injectionPoint) {
+        final Property config = injectionPoint.getAnnotated().getAnnotation(Property.class);
         final String configKey = config.value();
         if (configKey.isEmpty()) {
             throw new IllegalArgumentException("Property value key is required.");

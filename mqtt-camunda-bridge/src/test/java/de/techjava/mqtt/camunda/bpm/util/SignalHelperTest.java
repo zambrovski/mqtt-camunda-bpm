@@ -1,26 +1,19 @@
-package de.techjava.mqtt.camunda.bpm;
+package de.techjava.mqtt.camunda.bpm.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
 
-public class CatchingSignalEventReciverTest {
+import de.techjava.mqtt.camunda.bpm.util.SignalHelper;
 
-    CatchingSignalEventReceiver testee;
-
-    @Before
-    public void init() {
-        testee = new CatchingSignalEventReceiver();
-        testee.init();
-    }
+public class SignalHelperTest {
 
     @Test
     public void getSignalTopics() {
-        Set<String> signalTopics = testee.getSignalTopics("foo/bar/47/*/12");
+        Set<String> signalTopics = SignalHelper.getSignalTopics("foo/bar/47/*/12", false);
         assertEquals(5, signalTopics.size());
         assertTrue(signalTopics.contains("12"));
         assertTrue(signalTopics.contains("*/12"));
@@ -31,20 +24,20 @@ public class CatchingSignalEventReciverTest {
 
     @Test
     public void getSignalOneTopics() {
-        Set<String> signalTopics = testee.getSignalTopics("foo");
+        Set<String> signalTopics = SignalHelper.getSignalTopics("foo", false);
         assertEquals(1, signalTopics.size());
         assertTrue(signalTopics.contains("foo"));
     }
 
     @Test
     public void getSignalNoTopics() {
-        Set<String> signalTopics = testee.getSignalTopics("/");
+        Set<String> signalTopics = SignalHelper.getSignalTopics("/", false);
         assertEquals(0, signalTopics.size());
     }
 
     @Test
     public void getSignalNoTopics2() {
-        Set<String> signalTopics = testee.getSignalTopics("//");
+        Set<String> signalTopics = SignalHelper.getSignalTopics("//", false);
         assertEquals(0, signalTopics.size());
     }
 

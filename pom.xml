@@ -6,7 +6,7 @@
 	<artifactId>mqtt-camunda-bridge-parent</artifactId>
 	<packaging>pom</packaging>
 	<version>0.0.2-SNAPSHOT</version>
-	<name>Camunda BPM MQTT Bridge Parent</name>
+	<name>Camunda BPM MQTT Parent</name>
 	<description>Parent of the library providing MQTT to Camunda BPM bridge.</description>
 
 	<parent>
@@ -19,6 +19,8 @@
 	<modules>
 		<module>mqtt-camunda-bridge</module>
 		<module>mqtt-camunda-examples</module>
+		<module>mqtt-camunda-cdi</module>		
+		<module>mqtt-camunda-spring</module>
 	</modules>
 
 	<properties>

@@ -2,10 +2,6 @@ package de.techjava.mqtt.camunda.comm;
 
 import java.util.UUID;
 
-import javax.enterprise.inject.Disposes;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -13,45 +9,40 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.techjava.mqtt.camunda.config.Property;
-
 /**
  * Produces a configured MQTT Client.
  * 
  * @author Simon Zambrovski
  */
-public class MqttClientProducer {
+public class MqttClientFactory {
 
-    private static Logger logger = LoggerFactory.getLogger(MqttClientProducer.class);
-
-    @Inject
-    @Property("mqtt.broker")
-    private String broker;
-
-    @Inject
-    @Property("mqtt.client.id")
-    private String clientId;
-    
-    @Inject
-    @Property("mqtt.disabled")
+    private static Logger logger = LoggerFactory.getLogger(MqttClientFactory.class);
+    private final String broker;
+    private final String clientId;
     private Boolean disabled;
+
+    public MqttClientFactory(final String broker, final String clientId, final Boolean disabled) {
+        this.broker = broker;
+        if (clientId == null) {
+            this.clientId = UUID.randomUUID().toString();
+        } else {
+            this.clientId = clientId;
+        }
+        if (disabled == null) {
+            this.disabled = Boolean.FALSE;
+        } else {
+            this.disabled = disabled;
+        }
+    }
 
     /**
      * Produces a MQTT client.
      * 
      * @return working instance connected to a broker.
      */
-    @Produces
     public MqttClient createMqttClient() {
         MqttClient client = null;
         try {
-            if (clientId == null) {
-                clientId = UUID.randomUUID().toString();
-            }
-            
-            if (disabled == null) {
-                disabled = Boolean.FALSE;
-            }
             client = new MqttClient(broker, clientId, new MemoryPersistence());
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
@@ -74,7 +65,7 @@ public class MqttClientProducer {
      * @param client
      *            client to shut down.
      */
-    public void destroy(@Disposes MqttClient client) {
+    public void destroy(final MqttClient client) {
         try {
             if (client != null) {
                 client.disconnect();

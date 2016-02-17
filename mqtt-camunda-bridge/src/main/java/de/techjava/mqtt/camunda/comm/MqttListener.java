@@ -5,14 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.ServletContext;
-
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -21,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.techjava.mqtt.camunda.bpm.CatchingSignalEventReceiver;
-import de.techjava.mqtt.camunda.config.Property;
 
 /**
  * MqttListener Bean. Manages all subscriptions to MQTT.
@@ -29,42 +20,40 @@ import de.techjava.mqtt.camunda.config.Property;
  * @author Thorsten Pohl
  * @author Simon Zambrovski
  */
-@ApplicationScoped
-@Named
-public class MqttReceiver extends MqttCallbackAdapter {
+public class MqttListener extends MqttCallbackAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(MqttReceiver.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqttListener.class);
     private Map<String, Collection<MqttCallback>> listeners = new HashMap<String, Collection<MqttCallback>>();
 
-    @Inject
     private MqttClient client;
-
-    @Inject
     private CatchingSignalEventReceiver signalReceiver;
-
-    @Inject
-    @Property("mqtt.qos")
-    private Integer qos;
-
-    @Inject
-    @Property("mqtt.signals.deliver")
     private Boolean deliverSignals;
-
-    @Inject
-    @Property("mqtt.topic.prefix")
     private String topicPrefix;
 
-    @PostConstruct
-    public void init() {
-        if (this.deliverSignals == null) {
+    public MqttListener(final MqttClient mqttClient, final CatchingSignalEventReceiver signalReceiver, final String topicPrefix,
+            final Boolean deliverSignals) {
+        this.client = mqttClient;
+        this.signalReceiver = signalReceiver;
+        this.topicPrefix = topicPrefix;
+        if (deliverSignals == null) {
             this.deliverSignals = Boolean.FALSE;
             logger.warn("MQTT BPMN signal delivery is deactivated. "
                     + "Set mqtt.signals.deliver=true if you want to activate it or set it to false to avoid this message.");
+        } else {
+            this.deliverSignals = deliverSignals;
         }
+    }
+
+    /**
+     * Initializes the receiver and register all callbacks.
+     */
+    public void initializeReceiver() {
         if (this.client.isConnected()) {
             this.client.setCallback(this);
             this.initializeSignalDelivery();
             logger.info("MQTT receiver initialized.");
+        } else {
+            logger.info("MQTT receiver is not connected.");
         }
     }
 
@@ -129,16 +118,6 @@ public class MqttReceiver extends MqttCallbackAdapter {
         if (deliverSignals) {
             signalReceiver.messageArrived(topic.substring(topicPrefix.length()), message);
         }
-    }
-
-    /**
-     * This methods starts up the receiver on application startup.
-     * 
-     * @param payload
-     *            servlet context.
-     */
-    public void processApplicationScopedInit(@Observes @Initialized(ApplicationScoped.class) ServletContext payload) {
-        // do nothing.
     }
 
 }
